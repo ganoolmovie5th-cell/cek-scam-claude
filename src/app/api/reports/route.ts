@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+// Use plain untyped client to avoid Supabase generic inference issues in strict TS build
+function getServerClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { scamType, targetName, platform, description, lossAmount, reporterContact, anonymous } = body;
 
-    // Validation
     if (!scamType || !targetName || !platform || !description) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -14,22 +21,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Description too short" }, { status: 400 });
     }
 
-    const supabase = createServerSupabaseClient();
+    const supabase = getServerClient();
+
+    const payload = {
+      scam_type: scamType,
+      target_name: targetName,
+      platform,
+      description,
+      loss_amount: lossAmount ? parseInt(String(lossAmount).replace(/\D/g, "")) : null,
+      reporter_contact: anonymous ? null : (reporterContact ?? null),
+      anonymous: anonymous ?? true,
+      status: "pending",
+      risk_level: "DANGER",
+      votes: 0,
+    };
 
     const { data, error } = await supabase
       .from("scam_reports")
-      .insert({
-        scam_type: scamType,
-        target_name: targetName,
-        platform,
-        description,
-        loss_amount: lossAmount ? parseInt(lossAmount.replace(/\D/g, "")) : null,
-        reporter_contact: anonymous ? null : reporterContact,
-        anonymous: anonymous ?? true,
-        status: "pending",
-        risk_level: "DANGER",
-        votes: 0,
-      })
+      .insert(payload)
       .select()
       .single();
 
@@ -47,7 +56,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = getServerClient();
 
     const { data, error } = await supabase
       .from("scam_reports")
