@@ -145,10 +145,20 @@ export async function POST(req: NextRequest) {
         .eq("id", cached.id)
         .then(() => {});
 
+      // Always re-apply heuristic on top of cached VT result
+      const heuristic = runHeuristic(normalised);
+      const cachedVtRisk = (cached.result ?? "SAFE") as "SAFE" | "WARNING" | "DANGER";
+      const finalRisk = worstRisk(cachedVtRisk, heuristic.risk);
+
+      const cachedReasons: string[] = cached.reasons ?? [];
+      const allReasons = [...cachedReasons, ...heuristic.reasons].filter(
+        (r, i, arr) => arr.indexOf(r) === i // deduplicate
+      );
+
       return NextResponse.json({
         source: "cache",
-        risk: cached.result,
-        reasons: cached.reasons ?? [],
+        risk: finalRisk,
+        reasons: allReasons,
         stats: cached.vt_stats ?? null,
         total_engines: cached.total_engines ?? 0,
         detections: cached.vt_detections ?? [],
