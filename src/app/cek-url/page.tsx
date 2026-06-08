@@ -112,42 +112,49 @@ export default function CekUrlPage() {
 
     try {
       setLoadingMsg("Mengirim ke VirusTotal...");
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 28000);
+
       const res = await fetch("/api/check-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: input.trim() }),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeout));
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        // Fallback to heuristic if VT unavailable
-        if (res.status === 503 || res.status === 504) {
-          setLoadingMsg("VirusTotal tidak tersedia, pakai analisis lokal...");
-          await new Promise((r) => setTimeout(r, 800));
-          setResult(analyzeHeuristic(input));
-          return;
-        }
-        throw new Error(err.error ?? "Gagal cek URL");
+        // Fallback to local heuristic
+        setLoadingMsg("Pakai analisis lokal sebagai fallback...");
+        await new Promise((r) => setTimeout(r, 500));
+        setResult(analyzeHeuristic(input));
+        return;
       }
 
       const data = await res.json();
-      setLoadingMsg("Memproses hasil...");
 
+      if (!data?.risk) {
+        // Unexpected empty response — fallback
+        setResult(analyzeHeuristic(input));
+        return;
+      }
+
+      setLoadingMsg("Memproses hasil...");
       setResult({
         query: input,
         risk: data.risk,
         reasons: data.reasons ?? [],
         source: data.source ?? "virustotal",
-        vtStats: data.stats,
-        vtDetections: data.detections,
-        vtCategories: data.categories,
-        vtPermalink: data.vt_permalink,
-        totalEngines: data.total_engines,
+        vtStats: data.stats ?? undefined,
+        vtDetections: data.detections ?? undefined,
+        vtCategories: data.categories ?? undefined,
+        vtPermalink: data.vt_permalink ?? undefined,
+        totalEngines: data.total_engines ?? undefined,
       });
     } catch {
-      // Fallback to heuristic
+      // Network error or timeout — fallback to heuristic
       setLoadingMsg("Menggunakan analisis lokal...");
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 400));
       setResult(analyzeHeuristic(input));
     } finally {
       setLoading(false);

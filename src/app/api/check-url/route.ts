@@ -1,62 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+export const maxDuration = 30; // Vercel: allow up to 30s for this route
+
 // ── VirusTotal helpers ─────────────────────────────────────────────
 const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY ?? "";
-const VT_BASE = "https://www.virustotal.com/api/v3";
+const VT_BASE    = "https://www.virustotal.com/api/v3";
 
 function encodeBase64Url(str: string): string {
-  // VirusTotal requires base64url-encoded URL (no padding)
-  const b64 = Buffer.from(str).toString("base64");
-  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return Buffer.from(str)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 async function vtGetUrl(url: string) {
-  const id = encodeBase64Url(url);
-  const res = await fetch(`${VT_BASE}/urls/${id}`, {
+  const res = await fetch(`${VT_BASE}/urls/${encodeBase64Url(url)}`, {
     headers: { "x-apikey": VT_API_KEY },
-    next: { revalidate: 3600 }, // cache 1 hour
   });
-  if (res.status === 404) return null; // not analysed yet
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error(`VT GET failed: ${res.status}`);
   return res.json();
 }
 
-async function vtScanUrl(url: string) {
-  const body = new URLSearchParams({ url });
+async function vtScanUrl(url: string): Promise<string> {
   const res = await fetch(`${VT_BASE}/urls`, {
     method: "POST",
     headers: {
       "x-apikey": VT_API_KEY,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body,
+    body: new URLSearchParams({ url }),
   });
   if (!res.ok) throw new Error(`VT scan failed: ${res.status}`);
   const data = await res.json();
-  return data?.data?.id as string; // analysis id
+  return data?.data?.id as string;
 }
 
-async function vtGetAnalysis(analysisId: string) {
-  const res = await fetch(`${VT_BASE}/analyses/${analysisId}`, {
-    headers: { "x-apikey": VT_API_KEY },
-  });
-  if (!res.ok) throw new Error(`VT analysis fetch failed: ${res.status}`);
-  return res.json();
-}
-
-// Poll until analysis is complete (max 15s)
-async function vtWaitForAnalysis(analysisId: string, maxWaitMs = 15000) {
+async function vtPollAnalysis(analysisId: string, maxWaitMs = 20000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
-    const data = await vtGetAnalysis(analysisId);
+    const res = await fetch(`${VT_BASE}/analyses/${analysisId}`, {
+      headers: { "x-apikey": VT_API_KEY },
+    });
+    if (!res.ok) throw new Error(`VT poll failed: ${res.status}`);
+    const data = await res.json();
     if (data?.data?.attributes?.status === "completed") return data;
     await new Promise((r) => setTimeout(r, 3000));
   }
   return null;
 }
 
-// ── Supabase cache ─────────────────────────────────────────────────
+// ── Supabase ───────────────────────────────────────────────────────
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,148 +60,130 @@ function getSupabase() {
   );
 }
 
-// ── Risk classifier ────────────────────────────────────────────────
-function classifyVTStats(stats: {
-  malicious: number;
-  suspicious: number;
-  harmless: number;
-  undetected: number;
+// ── Risk classifiers ───────────────────────────────────────────────
+function classifyVT(stats: {
+  malicious: number; suspicious: number; harmless: number; undetected: number;
 }): "SAFE" | "WARNING" | "DANGER" {
   if (stats.malicious >= 3) return "DANGER";
   if (stats.malicious >= 1 || stats.suspicious >= 3) return "WARNING";
   return "SAFE";
 }
 
-// ── Heuristic checker (local fallback layer) ───────────────────────
-type HeuristicResult = {
-  risk: "SAFE" | "WARNING" | "DANGER";
-  reasons: string[];
-};
-
-function runHeuristic(rawUrl: string): HeuristicResult {
-  const clean = rawUrl.toLowerCase()
+function runHeuristic(raw: string): { risk: "SAFE" | "WARNING" | "DANGER"; reasons: string[] } {
+  const clean = raw.toLowerCase()
     .replace(/^https?:\/\//, "")
     .replace(/^www\./, "")
     .split("/")[0];
 
-  const dangerSignals: string[] = [];
-  const warnSignals: string[] = [];
+  const danger: string[] = [];
+  const warn:   string[] = [];
 
-  const suspiciousTLDs    = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
-  const dangerKeywords    = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "hack", "free-money"];
-  const warnKeywords      = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat", "penghasilan"];
-  const brandSpoof        = ["tokopedla", "tok0pedia", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi", "instagram-verify"];
+  const badTLDs     = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
+  const badKeywords = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "free-money"];
+  const warnWords   = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat"];
+  const spoofed     = ["tok0pedia", "tokopedla", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi"];
 
-  if (suspiciousTLDs.some((t) => clean.endsWith(t)))
-    dangerSignals.push(`TLD mencurigakan: .${clean.split(".").pop()} — sering dipakai scammer`);
-  if (dangerKeywords.some((k) => clean.includes(k)))
-    dangerSignals.push("Kata kunci berbahaya terdeteksi dalam domain");
-  if (brandSpoof.some((b) => clean.includes(b)))
-    dangerSignals.push("Terindikasi typosquatting — meniru brand terkenal");
-  if (warnKeywords.some((k) => clean.includes(k)))
-    warnSignals.push("Kata kunci promosi mencurigakan dalam URL");
+  if (badTLDs.some((t) => clean.endsWith(t)))
+    danger.push(`TLD mencurigakan (.${clean.split(".").pop()}) — sering dipakai scammer`);
+  if (badKeywords.some((k) => clean.includes(k)))
+    danger.push("Kata kunci berbahaya terdeteksi dalam domain");
+  if (spoofed.some((b) => clean.includes(b)))
+    danger.push("Terindikasi typosquatting — meniru brand terkenal");
+  if (warnWords.some((k) => clean.includes(k)))
+    warn.push("Kata kunci promosi mencurigakan dalam URL");
   if (/\d{5,}/.test(clean))
-    warnSignals.push("Banyak angka berurutan dalam domain");
-  if ((clean.match(/-/g) || []).length >= 4)
-    warnSignals.push("Terlalu banyak tanda hubung — pola umum domain scam");
+    warn.push("Banyak angka berurutan dalam domain");
+  if ((clean.match(/-/g) ?? []).length >= 4)
+    warn.push("Terlalu banyak tanda hubung — pola umum domain scam");
   if (clean.split(".").length > 4)
-    warnSignals.push("Subdomain berlapis mencurigakan");
+    warn.push("Subdomain berlapis mencurigakan");
 
-  if (dangerSignals.length > 0) return { risk: "DANGER", reasons: dangerSignals };
-  if (warnSignals.length > 0)   return { risk: "WARNING", reasons: warnSignals };
+  if (danger.length > 0) return { risk: "DANGER", reasons: danger };
+  if (warn.length > 0)   return { risk: "WARNING", reasons: warn };
   return { risk: "SAFE", reasons: [] };
 }
 
-// ── Merge VT + heuristic risk (take the worst) ────────────────────
-function mergeRisk(
-  vtRisk: "SAFE" | "WARNING" | "DANGER",
-  hRisk:  "SAFE" | "WARNING" | "DANGER"
+function worstRisk(
+  a: "SAFE" | "WARNING" | "DANGER",
+  b: "SAFE" | "WARNING" | "DANGER"
 ): "SAFE" | "WARNING" | "DANGER" {
-  const order = { SAFE: 0, WARNING: 1, DANGER: 2 };
-  return order[vtRisk] >= order[hRisk] ? vtRisk : hRisk;
+  const rank = { SAFE: 0, WARNING: 1, DANGER: 2 };
+  return rank[a] >= rank[b] ? a : b;
 }
 
 // ── Main handler ───────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
-    const { url } = await req.json();
-    if (!url || typeof url !== "string") {
+    const body = await req.json().catch(() => ({}));
+    const url  = typeof body?.url === "string" ? body.url.trim() : "";
+
+    if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const cleanUrl = url.trim();
+    const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
-    // Normalise — add https:// if missing
-    const normalised = /^https?:\/\//i.test(cleanUrl)
-      ? cleanUrl
-      : `https://${cleanUrl}`;
-
-    // ── 1. Check Supabase cache first ──────────────────────────────
+    // ── 1. Supabase cache ──────────────────────────────────────────
     const supabase = getSupabase();
     const { data: cached } = await supabase
       .from("url_checks")
       .select("*")
       .eq("url", normalised.toLowerCase())
-      .single();
+      .single()
+      .catch(() => ({ data: null }));
 
     if (cached) {
-      // Increment check count (fire-and-forget, ignore type errors)
+      // fire-and-forget increment
       supabase
         .from("url_checks")
-        .update({ check_count: cached.check_count + 1 } as never)
+        .update({ check_count: (cached.check_count ?? 0) + 1 } as never)
         .eq("id", cached.id)
         .then(() => {});
 
-      return NextResponse.json({ source: "cache", ...cached });
+      return NextResponse.json({
+        source: "cache",
+        risk: cached.result,
+        reasons: cached.reasons ?? [],
+        stats: cached.vt_stats ?? null,
+        total_engines: cached.total_engines ?? 0,
+        detections: cached.vt_detections ?? [],
+        categories: cached.vt_categories ?? [],
+        vt_permalink: cached.vt_permalink ?? null,
+      });
     }
 
-    // ── 2. No cache — call VirusTotal ──────────────────────────────
+    // ── 2. Heuristic-only fast path (no VT key) ────────────────────
     if (!VT_API_KEY) {
-      return NextResponse.json(
-        { error: "VIRUSTOTAL_API_KEY not configured" },
-        { status: 503 }
-      );
+      const h = runHeuristic(normalised);
+      return NextResponse.json({ source: "heuristic", risk: h.risk, reasons: h.reasons });
     }
 
-    // Try GET first (might already be in VT database)
+    // ── 3. VirusTotal ──────────────────────────────────────────────
     let vtData = await vtGetUrl(normalised).catch(() => null);
 
-    // If not in VT yet, submit for scanning
     if (!vtData) {
-      const analysisId = await vtScanUrl(normalised);
-      vtData = await vtWaitForAnalysis(analysisId);
+      // Submit for scanning, then poll
+      const analysisId = await vtScanUrl(normalised).catch(() => null);
+      if (analysisId) {
+        vtData = await vtPollAnalysis(analysisId).catch(() => null);
+      }
     }
 
-    if (!vtData) {
-      return NextResponse.json(
-        { error: "VirusTotal analysis timed out. Try again shortly." },
-        { status: 504 }
-      );
-    }
-
+    // ── 4. Parse VT response ───────────────────────────────────────
     const attrs = vtData?.data?.attributes ?? vtData?.attributes ?? {};
-    const stats: { malicious: number; suspicious: number; harmless: number; undetected: number } =
-      attrs?.last_analysis_stats ?? attrs?.stats ?? {
-        malicious: 0,
-        suspicious: 0,
-        harmless: 0,
-        undetected: 0,
-      };
+    const stats = (attrs?.last_analysis_stats ?? attrs?.stats ?? {
+      malicious: 0, suspicious: 0, harmless: 0, undetected: 0,
+    }) as { malicious: number; suspicious: number; harmless: number; undetected: number };
 
-    const vtRisk = classifyVTStats(stats);
-
-    // ── Run heuristic layer on top of VT ──────────────────────────
+    const vtRisk    = classifyVT(stats);
     const heuristic = runHeuristic(normalised);
-    const risk = mergeRisk(vtRisk, heuristic.risk);
+    const risk      = worstRisk(vtRisk, heuristic.risk);
 
-    const categories: string[] = Object.values(attrs?.categories ?? {}) as string[];
-    const totalEngines =
-      (stats.malicious ?? 0) +
-      (stats.suspicious ?? 0) +
-      (stats.harmless ?? 0) +
-      (stats.undetected ?? 0);
+    const categories: string[]    = Object.values(attrs?.categories ?? {}) as string[];
+    const totalEngines: number    =
+      (stats.malicious ?? 0) + (stats.suspicious ?? 0) +
+      (stats.harmless ?? 0)  + (stats.undetected ?? 0);
 
-    // Build vendor detections list (malicious + suspicious only)
     const analysisResults: Record<string, { category: string; result: string }> =
       attrs?.last_analysis_results ?? attrs?.results ?? {};
     const detections = Object.entries(analysisResults)
@@ -214,46 +192,32 @@ export async function POST(req: NextRequest) {
       .slice(0, 10);
 
     const reasons: string[] = [];
-
-    // VT reasons
     if (stats.malicious > 0)
-      reasons.push(`${stats.malicious} dari ${totalEngines} vendor mendeteksi sebagai berbahaya`);
+      reasons.push(`${stats.malicious} dari ${totalEngines} vendor mendeteksi berbahaya`);
     if (stats.suspicious > 0)
-      reasons.push(`${stats.suspicious} vendor menandai sebagai mencurigakan`);
+      reasons.push(`${stats.suspicious} vendor menandai mencurigakan`);
     if (categories.length > 0)
-      reasons.push(`Kategori VT: ${categories.slice(0, 3).join(", ")}`);
-
-    // Heuristic reasons (jika ada)
-    if (heuristic.reasons.length > 0)
-      reasons.push(...heuristic.reasons);
-
-    // Jika semua aman
+      reasons.push(`Kategori: ${categories.slice(0, 3).join(", ")}`);
+    reasons.push(...heuristic.reasons);
     if (reasons.length === 0)
       reasons.push(
         `${stats.harmless} vendor menyatakan aman`,
-        "Tidak ada indikasi malware atau phishing dari VirusTotal",
+        "Tidak ada indikasi malware atau phishing",
         "Tidak ada pola URL mencurigakan"
       );
 
-    // Label sumber analisis
-    const sourceLabel = heuristic.risk !== "SAFE" && vtRisk === "SAFE"
-      ? "hybrid" // VT aman tapi heuristic flag
+    const source = !vtData
+      ? "heuristic"
+      : heuristic.risk !== "SAFE" && vtRisk === "SAFE"
+      ? "hybrid"
       : "virustotal";
 
-    const result = {
-      url: normalised,
-      risk,
-      stats,
-      total_engines: totalEngines,
-      detections,
-      categories,
-      reasons,
-      vt_permalink: attrs?.permalink ?? `https://www.virustotal.com/gui/url/${encodeBase64Url(normalised)}`,
-      source: sourceLabel,
-    };
+    const vt_permalink =
+      attrs?.permalink ??
+      `https://www.virustotal.com/gui/url/${encodeBase64Url(normalised)}`;
 
-    // ── 3. Save to Supabase cache ──────────────────────────────────
-    await supabase.from("url_checks").insert({
+    // ── 5. Save to Supabase cache ──────────────────────────────────
+    supabase.from("url_checks").insert({
       url: normalised.toLowerCase(),
       result: risk,
       reasons,
@@ -261,13 +225,23 @@ export async function POST(req: NextRequest) {
       vt_stats: stats,
       vt_detections: detections,
       vt_categories: categories,
-      vt_permalink: result.vt_permalink,
+      vt_permalink,
       total_engines: totalEngines,
-    } as never);
+    } as never).then(() => {});
 
-    return NextResponse.json(result);
+    return NextResponse.json({
+      source,
+      risk,
+      stats,
+      total_engines: totalEngines,
+      detections,
+      categories,
+      reasons,
+      vt_permalink,
+    });
+
   } catch (err) {
-    console.error("check-url error:", err);
+    console.error("[check-url]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
