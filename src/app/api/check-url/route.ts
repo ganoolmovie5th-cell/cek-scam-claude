@@ -130,7 +130,8 @@ export async function POST(req: NextRequest) {
       .select("*")
       .eq("url", normalised.toLowerCase())
       .single()
-      .catch(() => ({ data: null }));
+      .then((res) => res)
+      .catch(() => ({ data: null, error: null }));
 
     if (cached) {
       // fire-and-forget increment
