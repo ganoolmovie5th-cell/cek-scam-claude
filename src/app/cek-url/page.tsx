@@ -160,6 +160,7 @@ export default function CekUrlPage() {
   const sourceLabel: Record<string, string> = {
     virustotal: "🔬 VirusTotal (87 vendor)",
     cache: "💾 VirusTotal (cached)",
+    hybrid: "🔬 VirusTotal + 🤖 Analisis Lokal",
     database: "🗃️ Database Komunitas",
     heuristic: "🤖 Analisis Heuristik",
   };

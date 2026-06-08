@@ -76,6 +76,55 @@ function classifyVTStats(stats: {
   return "SAFE";
 }
 
+// ── Heuristic checker (local fallback layer) ───────────────────────
+type HeuristicResult = {
+  risk: "SAFE" | "WARNING" | "DANGER";
+  reasons: string[];
+};
+
+function runHeuristic(rawUrl: string): HeuristicResult {
+  const clean = rawUrl.toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .split("/")[0];
+
+  const dangerSignals: string[] = [];
+  const warnSignals: string[] = [];
+
+  const suspiciousTLDs    = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
+  const dangerKeywords    = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "hack", "free-money"];
+  const warnKeywords      = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat", "penghasilan"];
+  const brandSpoof        = ["tokopedla", "tok0pedia", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi", "instagram-verify"];
+
+  if (suspiciousTLDs.some((t) => clean.endsWith(t)))
+    dangerSignals.push(`TLD mencurigakan: .${clean.split(".").pop()} — sering dipakai scammer`);
+  if (dangerKeywords.some((k) => clean.includes(k)))
+    dangerSignals.push("Kata kunci berbahaya terdeteksi dalam domain");
+  if (brandSpoof.some((b) => clean.includes(b)))
+    dangerSignals.push("Terindikasi typosquatting — meniru brand terkenal");
+  if (warnKeywords.some((k) => clean.includes(k)))
+    warnSignals.push("Kata kunci promosi mencurigakan dalam URL");
+  if (/\d{5,}/.test(clean))
+    warnSignals.push("Banyak angka berurutan dalam domain");
+  if ((clean.match(/-/g) || []).length >= 4)
+    warnSignals.push("Terlalu banyak tanda hubung — pola umum domain scam");
+  if (clean.split(".").length > 4)
+    warnSignals.push("Subdomain berlapis mencurigakan");
+
+  if (dangerSignals.length > 0) return { risk: "DANGER", reasons: dangerSignals };
+  if (warnSignals.length > 0)   return { risk: "WARNING", reasons: warnSignals };
+  return { risk: "SAFE", reasons: [] };
+}
+
+// ── Merge VT + heuristic risk (take the worst) ────────────────────
+function mergeRisk(
+  vtRisk: "SAFE" | "WARNING" | "DANGER",
+  hRisk:  "SAFE" | "WARNING" | "DANGER"
+): "SAFE" | "WARNING" | "DANGER" {
+  const order = { SAFE: 0, WARNING: 1, DANGER: 2 };
+  return order[vtRisk] >= order[hRisk] ? vtRisk : hRisk;
+}
+
 // ── Main handler ───────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
@@ -143,7 +192,12 @@ export async function POST(req: NextRequest) {
         undetected: 0,
       };
 
-    const risk = classifyVTStats(stats);
+    const vtRisk = classifyVTStats(stats);
+
+    // ── Run heuristic layer on top of VT ──────────────────────────
+    const heuristic = runHeuristic(normalised);
+    const risk = mergeRisk(vtRisk, heuristic.risk);
+
     const categories: string[] = Object.values(attrs?.categories ?? {}) as string[];
     const totalEngines =
       (stats.malicious ?? 0) +
@@ -160,14 +214,31 @@ export async function POST(req: NextRequest) {
       .slice(0, 10);
 
     const reasons: string[] = [];
+
+    // VT reasons
     if (stats.malicious > 0)
       reasons.push(`${stats.malicious} dari ${totalEngines} vendor mendeteksi sebagai berbahaya`);
     if (stats.suspicious > 0)
       reasons.push(`${stats.suspicious} vendor menandai sebagai mencurigakan`);
     if (categories.length > 0)
-      reasons.push(`Kategori: ${categories.slice(0, 3).join(", ")}`);
-    if (risk === "SAFE")
-      reasons.push(`${stats.harmless} vendor menyatakan aman`, "Tidak ada indikasi malware atau phishing");
+      reasons.push(`Kategori VT: ${categories.slice(0, 3).join(", ")}`);
+
+    // Heuristic reasons (jika ada)
+    if (heuristic.reasons.length > 0)
+      reasons.push(...heuristic.reasons);
+
+    // Jika semua aman
+    if (reasons.length === 0)
+      reasons.push(
+        `${stats.harmless} vendor menyatakan aman`,
+        "Tidak ada indikasi malware atau phishing dari VirusTotal",
+        "Tidak ada pola URL mencurigakan"
+      );
+
+    // Label sumber analisis
+    const sourceLabel = heuristic.risk !== "SAFE" && vtRisk === "SAFE"
+      ? "hybrid" // VT aman tapi heuristic flag
+      : "virustotal";
 
     const result = {
       url: normalised,
@@ -178,7 +249,7 @@ export async function POST(req: NextRequest) {
       categories,
       reasons,
       vt_permalink: attrs?.permalink ?? `https://www.virustotal.com/gui/url/${encodeBase64Url(normalised)}`,
-      source: "virustotal",
+      source: sourceLabel,
     };
 
     // ── 3. Save to Supabase cache ──────────────────────────────────
