@@ -54,8 +54,8 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["url_checks"]["Insert"]>;
       };
     };
-    Views: {};
-    Functions: {};
-    Enums: {};
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
   };
 };

@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { SITE } from "@/lib/constants";
-
 const navLinks = [
   { href: "/cek-url", label: "🔍 Cek URL" },
   { href: "/database", label: "🗃️ Database Scam" },
