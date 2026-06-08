@@ -19,36 +19,39 @@ export async function GET() {
     }, { status: 500 });
   }
 
-  // Validate URL format
-  const urlValid = url.startsWith("https://") && url.includes(".supabase.co");
-  if (!urlValid) {
-    return NextResponse.json({
-      status: "error",
-      message: "NEXT_PUBLIC_SUPABASE_URL format invalid",
-      hint: "Should be: https://xxxxxxxxxxxx.supabase.co",
-      received_format: url.substring(0, 10) + "...",
-    }, { status: 500 });
-  }
+  // Show diagnostics
+  const urlTrimmed = url.trim();
+  const anonKeyTrimmed = anonKey.trim();
+  const urlValid = urlTrimmed.startsWith("https://") && urlTrimmed.includes(".supabase.co");
 
   // Try raw fetch first to diagnose network issues
   try {
-    const pingRes = await fetch(`${url}/rest/v1/`, {
+    const pingRes = await fetch(`${urlTrimmed}/rest/v1/`, {
       headers: {
-        apikey: anonKey,
-        Authorization: `Bearer ${anonKey}`,
+        apikey: anonKeyTrimmed,
+        Authorization: `Bearer ${anonKeyTrimmed}`,
       },
     });
     
     if (!pingRes.ok) {
+      const body = await pingRes.text().catch(() => "");
       return NextResponse.json({
         status: "error",
         message: "Supabase REST API unreachable",
         http_status: pingRes.status,
         hint: pingRes.status === 401
-          ? "Invalid API key"
+          ? "Invalid API key — pastikan anon key bukan service_role, dan tidak ada spasi/karakter tersembunyi"
           : pingRes.status === 404
-          ? "Wrong Supabase URL or project not found"
-          : "Check if Supabase project is active (not paused)",
+          ? "URL salah atau project tidak ditemukan"
+          : "Cek apakah Supabase project aktif (tidak paused)",
+        debug: {
+          url_format_valid: urlValid,
+          url_preview: urlTrimmed.substring(0, 40),
+          url_length: urlTrimmed.length,
+          anon_key_prefix: anonKeyTrimmed.substring(0, 20),
+          anon_key_length: anonKeyTrimmed.length,
+          response_body: body.substring(0, 200),
+        },
       }, { status: 500 });
     }
   } catch (fetchErr) {
@@ -56,14 +59,18 @@ export async function GET() {
       status: "error",
       message: "Cannot reach Supabase URL",
       error: String(fetchErr),
-      hint: "Check: 1) Supabase project is not paused, 2) URL is correct (https://xxxx.supabase.co)",
-      url_preview: url.substring(0, 30) + "...",
+      hint: "Supabase project mungkin paused atau URL salah",
+      debug: {
+        url_preview: urlTrimmed.substring(0, 40),
+        url_length: urlTrimmed.length,
+        url_format_valid: urlValid,
+      },
     }, { status: 500 });
   }
 
   // Try a simple Supabase query
   try {
-    const supabase = createClient(url, serviceKey ?? anonKey);
+    const supabase = createClient(urlTrimmed, serviceKey?.trim() ?? anonKeyTrimmed);
     const { error } = await supabase
       .from("scam_reports")
       .select("count")
