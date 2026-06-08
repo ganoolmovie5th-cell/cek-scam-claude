@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { SCAM_DATABASE, RISK_LEVELS } from "@/lib/constants";
 import type { ScamEntry } from "@/lib/constants";
 
@@ -171,12 +172,12 @@ export default function CekUrlPage() {
 
                 {result.risk !== "SAFE" && (
                   <div className="mt-4 flex gap-3">
-                    <a href="/lapor" className="text-sm px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                    <Link href="/lapor" className="text-sm px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors">
                       🚨 Laporkan
-                    </a>
-                    <a href="/edukasi" className="text-sm px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                    </Link>
+                    <Link href="/edukasi" className="text-sm px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
                       📚 Tips Aman
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
