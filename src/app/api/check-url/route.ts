@@ -125,13 +125,17 @@ export async function POST(req: NextRequest) {
 
     // ── 1. Supabase cache ──────────────────────────────────────────
     const supabase = getSupabase();
-    const { data: cached } = await supabase
-      .from("url_checks")
-      .select("*")
-      .eq("url", normalised.toLowerCase())
-      .single()
-      .then((res) => res)
-      .catch(() => ({ data: null, error: null }));
+    let cached = null;
+    try {
+      const { data } = await supabase
+        .from("url_checks")
+        .select("*")
+        .eq("url", normalised.toLowerCase())
+        .single();
+      cached = data;
+    } catch {
+      cached = null;
+    }
 
     if (cached) {
       // fire-and-forget increment
