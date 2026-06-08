@@ -32,7 +32,20 @@ export type Database = {
           risk_level?: "DANGER" | "WARNING" | "SAFE";
           votes?: number;
         };
-        Update: Partial<Database["public"]["Tables"]["scam_reports"]["Insert"]>;
+        Update: {
+          id?: string;
+          created_at?: string;
+          scam_type?: string;
+          target_name?: string;
+          platform?: string;
+          description?: string;
+          loss_amount?: number | null;
+          reporter_contact?: string | null;
+          anonymous?: boolean;
+          status?: "pending" | "verified" | "rejected";
+          risk_level?: "DANGER" | "WARNING" | "SAFE";
+          votes?: number;
+        };
       };
       url_checks: {
         Row: {
@@ -51,7 +64,14 @@ export type Database = {
           reasons: string[];
           check_count?: number;
         };
-        Update: Partial<Database["public"]["Tables"]["url_checks"]["Insert"]>;
+        Update: {
+          id?: string;
+          created_at?: string;
+          url?: string;
+          result?: "SAFE" | "WARNING" | "DANGER";
+          reasons?: string[];
+          check_count?: number;
+        };
       };
     };
     Views: Record<string, never>;
