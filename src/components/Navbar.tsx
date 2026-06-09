@@ -7,7 +7,7 @@ const navLinks = [
   { href: "/cek-url", label: "🔍 Cek URL" },
   { href: "/database", label: "🗃️ Database Scam" },
   { href: "/edukasi", label: "📚 Edukasi" },
-  { href: "/lapor", label: "📋 Lapor Scam" },
+  { href: "/lapor", label: "📋 Lapor" },
 ];
 
 export default function Navbar() {
