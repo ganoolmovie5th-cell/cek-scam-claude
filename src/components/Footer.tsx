@@ -13,7 +13,7 @@ export default function Footer() {
                 🛡️
               </div>
               <span className="font-black text-xl text-white">
-                Cek<span className="text-red-400">Scam</span>
+                cek-<span className="text-red-400">scam</span>
                 <span className="text-gray-400 font-medium">.id</span>
               </span>
             </div>
