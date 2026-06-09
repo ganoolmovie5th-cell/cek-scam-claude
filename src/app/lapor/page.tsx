@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { SCAM_CATEGORIES } from "@/lib/constants";
 
 type FormState = {
@@ -57,10 +58,23 @@ export default function LaporPage() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-    // Simulate API call (Supabase insert will go here)
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ description: data.error || "Gagal mengirim laporan. Coba lagi." });
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setErrors({ description: "Gagal terhubung ke server. Periksa koneksi internet." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -77,9 +91,9 @@ export default function LaporPage() {
             <p className="font-mono text-green-800 font-bold">RPT-{Date.now().toString().slice(-8)}</p>
           </div>
           <div className="flex flex-col gap-2">
-            <a href="/database" className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition-colors">
+            <Link href="/database" className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition-colors">
               🗃️ Lihat Database Scam
-            </a>
+            </Link>
             <button onClick={() => { setSubmitted(false); setForm({ scamType: "", targetName: "", platform: "", description: "", lossAmount: "", reporterContact: "", anonymous: true }); }}
               className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-sm transition-colors">
               📋 Lapor Lagi

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 export const maxDuration = 30; // Vercel: allow up to 30s for this route
 
@@ -54,10 +54,7 @@ async function vtPollAnalysis(analysisId: string, maxWaitMs = 20000) {
 
 // ── Supabase ───────────────────────────────────────────────────────
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return createServerSupabaseClient();
 }
 
 // ── Risk classifiers ───────────────────────────────────────────────
@@ -141,7 +138,7 @@ export async function POST(req: NextRequest) {
       // fire-and-forget increment
       supabase
         .from("url_checks")
-        .update({ check_count: (cached.check_count ?? 0) + 1 } as never)
+        .update({ check_count: (cached.check_count ?? 0) + 1 })
         .eq("id", cached.id)
         .then(() => {});
 
@@ -242,7 +239,7 @@ export async function POST(req: NextRequest) {
       vt_categories: categories,
       vt_permalink,
       total_engines: totalEngines,
-    } as never).then(() => {});
+    }).then(() => {});
 
     return NextResponse.json({
       source,

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createServerSupabaseClient } from "@/lib/supabase";
 
 // DELETE /api/clear-cache — wipe all url_checks cache
 // Protected by secret key: ?key=YOUR_SECRET
@@ -7,15 +7,13 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const key = searchParams.get("key");
 
-  // Simple protection
-  if (key !== process.env.CACHE_CLEAR_KEY && key !== "dev-clear-2024") {
+  // Simple protection — dev fallback only allowed in development environment
+  const isDev = process.env.NODE_ENV === "development";
+  if (key !== process.env.CACHE_CLEAR_KEY && !(isDev && key === "dev-clear-2024")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = createServerSupabaseClient();
 
   const { error, count } = await supabase
     .from("url_checks")

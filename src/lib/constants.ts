@@ -1,5 +1,5 @@
 // ============================================================
-// SINGLE SOURCE OF TRUTH — CekScam.id
+// SINGLE SOURCE OF TRUTH — cek-scam.id
 // Update semua data statistik di sini
 // ============================================================
 

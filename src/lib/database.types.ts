@@ -55,6 +55,11 @@ export type Database = {
           result: "SAFE" | "WARNING" | "DANGER";
           reasons: string[];
           check_count: number;
+          vt_stats: Record<string, number> | null;
+          vt_detections: Array<{ vendor: string; category: string; result: string }> | null;
+          vt_categories: string[] | null;
+          vt_permalink: string | null;
+          total_engines: number | null;
         };
         Insert: {
           id?: string;
@@ -63,6 +68,11 @@ export type Database = {
           result: "SAFE" | "WARNING" | "DANGER";
           reasons: string[];
           check_count?: number;
+          vt_stats?: Record<string, number> | null;
+          vt_detections?: Array<{ vendor: string; category: string; result: string }> | null;
+          vt_categories?: string[] | null;
+          vt_permalink?: string | null;
+          total_engines?: number | null;
         };
         Update: {
           id?: string;
@@ -71,6 +81,11 @@ export type Database = {
           result?: "SAFE" | "WARNING" | "DANGER";
           reasons?: string[];
           check_count?: number;
+          vt_stats?: Record<string, number> | null;
+          vt_detections?: Array<{ vendor: string; category: string; result: string }> | null;
+          vt_categories?: string[] | null;
+          vt_permalink?: string | null;
+          total_engines?: number | null;
         };
       };
     };
