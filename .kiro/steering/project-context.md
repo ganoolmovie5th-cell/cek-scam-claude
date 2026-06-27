@@ -4,7 +4,7 @@
 
 Platform komunitas Indonesia untuk deteksi penipuan online (anti-scam). Pengguna bisa cek keamanan website, melaporkan scammer, melihat database scam, dan membaca artikel edukasi keamanan digital. Dibangun dengan Next.js 15 App Router + TypeScript, di-deploy ke Vercel, backend Supabase, pemindaian URL via VirusTotal.
 
-- **Live:** https://cek-scam-claude.vercel.app
+- **Live:** https://cek-scam.web.id
 - **Repo:** ganoolmovie5th-cell/cek-scam-claude
 - **Branch:** `main` (push langsung)
 
