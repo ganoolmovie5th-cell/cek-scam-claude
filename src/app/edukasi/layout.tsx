@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Edukasi Digital Anti Scam",
   description:
     "Pelajari modus penipuan terbaru, cara melindungi diri, dan tips aman berinternet dari para ahli keamanan digital Indonesia.",
+  alternates: {
+    canonical: "/edukasi",
+  },
   openGraph: {
     title: "Edukasi Digital Anti Scam | cek-scam.id",
     description:

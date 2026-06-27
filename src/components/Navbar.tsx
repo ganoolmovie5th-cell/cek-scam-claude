@@ -25,7 +25,7 @@ export default function Navbar() {
             </div>
             <span className="font-black text-xl text-gray-900">
               cek-<span className="text-red-600">scam</span>
-              <span className="text-gray-400 font-medium">.id</span>
+              <span className="text-gray-500 font-medium">.id</span>
             </span>
           </Link>
 

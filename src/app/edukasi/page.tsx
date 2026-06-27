@@ -91,11 +91,11 @@ export default function EdukasiPage() {
                     </div>
                   ))}
                   {article.tips.length > 2 && (
-                    <p className="text-xs text-gray-400 pl-4">+{article.tips.length - 2} tips lainnya...</p>
+                    <p className="text-xs text-gray-500 pl-4">+{article.tips.length - 2} tips lainnya...</p>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
                   <span>⏱ {article.readTime}</span>
                   <span>{article.date}</span>
                 </div>

@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Database Scammer Indonesia",
   description:
     "Daftar lengkap website, toko, dan platform penipuan yang telah dilaporkan dan diverifikasi komunitas cek-scam.id.",
+  alternates: {
+    canonical: "/database",
+  },
   openGraph: {
     title: "Database Scammer Indonesia | cek-scam.id",
     description:

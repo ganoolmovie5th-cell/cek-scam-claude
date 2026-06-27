@@ -205,7 +205,7 @@ export default function LaporPage() {
                 ? <p className="text-red-500 text-xs">{errors.description}</p>
                 : <span />
               }
-              <p className="text-xs text-gray-400">{form.description.length} karakter</p>
+              <p className="text-xs text-gray-500">{form.description.length} karakter</p>
             </div>
           </div>
 
@@ -260,7 +260,7 @@ export default function LaporPage() {
             )}
           </button>
 
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-gray-500">
             Dengan mengirim laporan, kamu menyatakan bahwa informasi ini benar dan bukan untuk memfitnah.
           </p>
         </form>

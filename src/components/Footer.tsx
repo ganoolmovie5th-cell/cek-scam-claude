@@ -76,10 +76,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-gray-500 text-xs">
+          <p className="text-gray-400 text-xs">
             © {new Date().getFullYear()} {SITE.name}. Dibuat dengan ❤️ untuk Indonesia yang lebih aman.
           </p>
-          <div className="flex gap-4 text-xs text-gray-500">
+          <div className="flex gap-4 text-xs text-gray-400">
             <span>Bukan pengganti laporan resmi ke OJK atau Polri</span>
           </div>
         </div>

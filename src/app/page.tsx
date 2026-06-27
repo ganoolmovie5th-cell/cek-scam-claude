@@ -1,12 +1,45 @@
 import Link from "next/link";
-import { STATS, SCAM_DATABASE, EDUCATION_ARTICLES, RISK_LEVELS } from "@/lib/constants";
+import { STATS, SCAM_DATABASE, EDUCATION_ARTICLES, RISK_LEVELS, SITE } from "@/lib/constants";
 
 export default function HomePage() {
   const recentScams = SCAM_DATABASE.filter((s) => s.risk === "DANGER").slice(0, 3);
   const recentArticles = EDUCATION_ARTICLES.slice(0, 3);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE.url}/#organization`,
+        name: SITE.name,
+        url: SITE.url,
+        description: SITE.description,
+        email: SITE.email,
+        sameAs: [SITE.social.twitter, SITE.social.instagram],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE.url}/#website`,
+        name: SITE.name,
+        url: SITE.url,
+        description: SITE.description,
+        inLanguage: "id-ID",
+        publisher: { "@id": `${SITE.url}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${SITE.url}/database?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── HERO ── */}
       <section className="relative bg-gradient-to-br from-gray-900 via-red-950 to-gray-900 text-white overflow-hidden">
@@ -182,13 +215,13 @@ export default function HomePage() {
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${risk.badge}`}>
                       {risk.icon} {risk.label}
                     </span>
-                    <span className="text-xs text-gray-400">{scam.reports} laporan</span>
+                    <span className="text-xs text-gray-600">{scam.reports} laporan</span>
                   </div>
                   <h3 className="font-bold text-gray-900 text-sm mb-1 truncate">{scam.name}</h3>
                   <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">{scam.description}</p>
                   <div className="mt-3 pt-3 border-t border-gray-200/60 flex items-center justify-between">
-                    <span className="text-xs text-gray-400">{scam.platform}</span>
-                    <span className="text-xs text-gray-400">{scam.date}</span>
+                    <span className="text-xs text-gray-600">{scam.platform}</span>
+                    <span className="text-xs text-gray-600">{scam.date}</span>
                   </div>
                 </div>
               );
@@ -225,12 +258,70 @@ export default function HomePage() {
                   {article.title}
                 </h3>
                 <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">{article.excerpt}</p>
-                <div className="mt-4 flex items-center justify-between text-xs text-gray-400">
+                <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
                   <span>⏱ {article.readTime}</span>
                   <span>{article.date}</span>
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SEO CONTENT (heading cascade h2→h6) ── */}
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">
+            Tentang cek-scam.id: Lawan Penipuan Online Bersama
+          </h2>
+          <p className="text-gray-600 leading-relaxed mb-8">
+            cek-scam.id adalah platform komunitas Indonesia yang membantu kamu mendeteksi penipuan digital sebelum menjadi korban. Mulai dari verifikasi keamanan website, database scammer yang dilaporkan komunitas, hingga edukasi keamanan digital, semuanya gratis dan terbuka untuk siapa saja.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Cara Melindungi Diri dari Scam</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Penipuan online terus berkembang, dari phishing, investasi bodong, sampai pinjol ilegal. Kenali polanya dan biasakan langkah pencegahan sederhana setiap hari.
+              </p>
+
+              <h4 className="text-base font-bold text-gray-900 mb-2">Verifikasi Sebelum Percaya</h4>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Selalu cek URL, reputasi toko, dan izin resmi sebelum mengirim uang atau data pribadi. Satu menit verifikasi bisa menyelamatkan tabunganmu.
+              </p>
+
+              <h5 className="text-sm font-bold text-gray-900 mb-2">Tanda Bahaya yang Sering Muncul</h5>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Harga terlalu murah, tekanan untuk segera transfer, domain mirip brand terkenal, dan permintaan OTP adalah sinyal klasik penipuan.
+              </p>
+
+              <h6 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Langkah Cepat Jika Ragu</h6>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Gunakan fitur <Link href="/cek-url" className="text-red-600 font-semibold hover:underline">Cek URL</Link> untuk memindai situs, lalu cek <Link href="/database" className="text-red-600 font-semibold hover:underline">Database Scam</Link> untuk melihat apakah sudah pernah dilaporkan.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">Peran Komunitas</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Setiap laporan dari pengguna memperkuat database dan membantu orang lain terhindar dari modus yang sama. Kamu bisa ikut berkontribusi tanpa harus menyebut identitas.
+              </p>
+
+              <h4 className="text-base font-bold text-gray-900 mb-2">Laporkan dengan Aman</h4>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Fitur <Link href="/lapor" className="text-red-600 font-semibold hover:underline">Lapor Scam</Link> mendukung pelaporan anonim. Tim kami memverifikasi sebelum data ditampilkan ke publik.
+              </p>
+
+              <h5 className="text-sm font-bold text-gray-900 mb-2">Belajar dari Kasus Nyata</h5>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Halaman <Link href="/edukasi" className="text-red-600 font-semibold hover:underline">Edukasi</Link> berisi artikel praktis tentang phishing, investasi bodong, pinjol ilegal, dan keamanan akun.
+              </p>
+
+              <h6 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Tetap Waspada</h6>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Keamanan digital adalah kebiasaan, bukan sekali jalan. Bagikan informasi ini ke keluarga dan teman agar makin banyak yang terlindungi.
+              </p>
+            </div>
           </div>
         </div>
       </section>

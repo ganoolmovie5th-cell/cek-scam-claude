@@ -16,10 +16,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: article.title,
     description: article.excerpt,
+    alternates: {
+      canonical: `/edukasi/${slug}`,
+    },
     openGraph: {
       title: article.title,
       description: article.excerpt,
       url: `${SITE.url}/edukasi/${slug}`,
+      type: "article",
+      publishedTime: new Date(article.date).toISOString(),
     },
   };
 }
@@ -31,8 +36,33 @@ export default async function ArticlePage({ params }: Props) {
 
   const related = EDUCATION_ARTICLES.filter((a) => a.id !== article.id).slice(0, 3);
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.excerpt,
+    datePublished: new Date(article.date).toISOString(),
+    dateModified: new Date(article.date).toISOString(),
+    articleSection: article.category,
+    inLanguage: "id-ID",
+    author: { "@type": "Organization", name: SITE.name },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE.url}/edukasi/${slug}`,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
@@ -59,7 +89,7 @@ export default async function ArticlePage({ params }: Props) {
                   {article.title}
                 </h1>
                 <p className="text-gray-600 text-sm leading-relaxed max-w-xl mx-auto">{article.excerpt}</p>
-                <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-400">
+                <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-500">
                   <span>⏱ {article.readTime}</span>
                   <span>•</span>
                   <span>📅 {article.date}</span>
@@ -146,7 +176,7 @@ export default async function ArticlePage({ params }: Props) {
                       <p className="text-xs font-medium text-gray-800 group-hover:text-purple-600 transition-colors leading-snug line-clamp-2">
                         {a.title}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">{a.readTime}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{a.readTime}</p>
                     </div>
                   </Link>
                 ))}

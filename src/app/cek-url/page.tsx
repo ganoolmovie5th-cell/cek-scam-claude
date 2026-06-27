@@ -233,7 +233,7 @@ export default function CekUrlPage() {
             </div>
           )}
 
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-500 mt-2">
             Coba: <button onClick={() => setInput("bca-update-akun.info")} className="text-blue-500 hover:underline">bca-update-akun.info</button>
             {" · "}
             <button onClick={() => setInput("tokopedia.com")} className="text-blue-500 hover:underline">tokopedia.com</button>
@@ -370,7 +370,7 @@ export default function CekUrlPage() {
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-400">
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
             <span>🔬</span>
             <span>Powered by <a href="https://www.virustotal.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">VirusTotal</a> — 87+ security vendor engines</span>
           </div>

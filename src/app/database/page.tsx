@@ -89,7 +89,7 @@ export default function DatabasePage() {
                 </button>
               );
             })}
-            <span className="text-xs text-gray-400 self-center mx-1">|</span>
+            <span className="text-xs text-gray-500 self-center mx-1">|</span>
             <span className="text-xs text-gray-500 self-center mr-1">Tipe:</span>
             <button onClick={() => setCategoryFilter("Semua")}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${categoryFilter === "Semua" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
@@ -150,7 +150,7 @@ export default function DatabasePage() {
                       )}
                     </div>
                     <p className="text-gray-600 text-xs leading-relaxed line-clamp-2 mb-2">{entry.description}</p>
-                    <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+                    <div className="flex flex-wrap gap-4 text-xs text-gray-600">
                       <span>📱 {entry.platform}</span>
                       <span>📋 {entry.reports} laporan</span>
                       <span>📅 {entry.date}</span>
