@@ -104,6 +104,65 @@ export default function EdukasiPage() {
           ))}
         </div>
 
+        {/* SEO content — heading cascade h2→h6 */}
+        <section className="mt-12 bg-white border border-gray-100 rounded-3xl p-8">
+          <h2 className="text-2xl font-black text-gray-900 mb-4">
+            Panduan Belajar Keamanan Digital
+          </h2>
+          <p className="text-gray-600 leading-relaxed mb-6">
+            Edukasi adalah pertahanan pertama melawan penipuan online. Semakin kamu paham modus para pelaku, semakin sulit kamu dijebak. Kumpulan artikel di bawah disusun agar mudah dipraktikkan sehari-hari, dari pemula sampai yang sudah melek digital.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Mulai dari Dasar</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Kenali bentuk penipuan paling umum sebelum masuk ke kasus yang lebih rumit.
+              </p>
+
+              <h4 className="text-base font-bold text-gray-900 mb-2">Belanja Online & Phishing</h4>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Dua modus terbanyak yang menyasar warga Indonesia. Pelajari cara membedakan toko asli dan palsu serta mengenali link jebakan.
+              </p>
+
+              <h5 className="text-sm font-bold text-gray-900 mb-2">Periksa Sebelum Klik</h5>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Biasakan mengecek URL, ikon gembok, dan reputasi penjual. Hindari memasukkan OTP di halaman yang dikirim lewat pesan.
+              </p>
+
+              <h6 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Tindak Lanjut</h6>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Ragu dengan sebuah situs? Pindai dulu lewat fitur{" "}
+                <Link href="/cek-url" className="text-purple-600 font-semibold hover:underline">Cek URL</Link>.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Naik Level Keamanan</h3>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Setelah paham dasarnya, perkuat akun dan keuangan dari ancaman yang lebih canggih.
+              </p>
+
+              <h4 className="text-base font-bold text-gray-900 mb-2">Investasi Bodong & Pinjol Ilegal</h4>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Janji untung tidak masuk akal dan pinjaman tanpa izin OJK adalah jebakan finansial. Selalu verifikasi izin di ojk.go.id.
+              </p>
+
+              <h5 className="text-sm font-bold text-gray-900 mb-2">Amankan Akun</h5>
+              <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                Aktifkan autentikasi dua faktor (2FA) dan gunakan password unik di setiap layanan penting.
+              </p>
+
+              <h6 className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Berbagi Pengalaman</h6>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Pernah jadi korban? Ceritakan lewat fitur{" "}
+                <Link href="/lapor" className="text-purple-600 font-semibold hover:underline">Lapor Scam</Link>{" "}
+                agar komunitas ikut terlindungi.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Bottom CTA */}
         <div className="mt-12 bg-purple-600 rounded-3xl p-8 text-white text-center">
           <div className="text-4xl mb-3">🤝</div>
