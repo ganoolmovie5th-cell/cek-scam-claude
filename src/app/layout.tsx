@@ -28,6 +28,9 @@ export const metadata: Metadata = {
     title: `${SITE.name} — ${SITE.tagline}`,
     description: SITE.description,
   },
+  verification: {
+    google: "RTDAiFJ96X7XanoV8ckbnCN_fvh2kZYZQ5ffc6XP_58",
+  },
   keywords: [
     "cek scam",
     "penipuan online indonesia",
