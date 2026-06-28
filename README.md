@@ -130,3 +130,13 @@ Skema lengkap ada di [`supabase/schema.sql`](supabase/schema.sql).
 ## Health Check
 
 `GET /api/health` memverifikasi env vars, koneksi Supabase, dan validitas VirusTotal API key. Berguna untuk debug deployment di Vercel.
+
+## Pembersihan Kode / Ponytail Audit (Juni 2026)
+
+Hapusan aman (verifikasi `tsc --noEmit` lolos), tanpa menyentuh pipeline cek URL, validasi, RLS, atau keamanan:
+- Hapus dependency `lucide-react` (0 import; UI pakai emoji).
+- Hapus `src/lib/supabase.ts` & `src/lib/database.types.ts` (dead: 0 importer, API route bikin client untyped inline sendiri).
+- Hapus field tak terpakai di `constants.ts`: `STATS.activeSince`, `STATS.communityMembers`, dan `RISK_LEVELS[].color`.
+- Perbaiki type drift: `CheckResult.source` di `cek-url/page.tsx` kini menyertakan `"hybrid"` (server memang bisa mengembalikannya).
+
+Catatan: form lapor (`/api/reports`) sengaja DIBIARKAN tersimulasi untuk sekarang (belum disambungkan ke Supabase) sesuai keputusan. Refactor opsional yang ditunda: konsolidasi factory Supabase server di 4 route + pindah daftar TLD/keyword/spoof heuristik ke `constants.ts`.

@@ -23,7 +23,7 @@ type CheckResult = {
   query: string;
   risk: "SAFE" | "WARNING" | "DANGER";
   reasons: string[];
-  source: "database" | "heuristic" | "virustotal" | "cache";
+  source: "database" | "heuristic" | "virustotal" | "cache" | "hybrid";
   entry?: ScamEntry | null;
   // VirusTotal extras
   vtStats?: VTStats;

@@ -166,3 +166,17 @@ Verifikasi sebelum selesai: `npm run build` harus sukses (TS strict). Cek `/api/
 - Teks UI Bahasa Indonesia, tanpa em-dash.
 - Jangan tambah library icon selain Lucide React.
 - Jangan ubah urutan pipeline cek URL tanpa alasan jelas (cache → heuristik → VT → klasifikasi → simpan).
+
+---
+
+## Pembersihan Kode / Ponytail Audit (Juni 2026)
+
+Hapusan aman (verifikasi `tsc --noEmit`), tidak menyentuh pipeline cek URL / validasi / RLS:
+- **Dep:** `lucide-react` dihapus (0 import; UI pakai emoji). `@vercel/analytics` TETAP (dipakai di `layout.tsx`).
+- **File mati:** `src/lib/supabase.ts` + `src/lib/database.types.ts` dihapus — 0 importer; API route membuat client untyped inline sendiri (pola `as never` tetap di route). Kalau nanti butuh client Supabase frontend, buat ulang yang ramping.
+- **`constants.ts`:** buang `STATS.activeSince`, `STATS.communityMembers`, `RISK_LEVELS[].color` (tak pernah dibaca; komponen pakai bg/border/text/badge/icon/label).
+- **Type drift:** `CheckResult.source` (`cek-url/page.tsx`) ditambah `"hybrid"`.
+
+**Keputusan:** form lapor (`lapor/page.tsx` → `setTimeout` simulasi) sengaja TIDAK disambungkan ke `/api/reports` untuk sekarang (opsi A). `/api/reports` route dibiarkan utuh (validasi + insert), menunggu disambungkan saat keputusan produk siap.
+
+**Ditunda (refactor, bukan hapusan):** konsolidasi factory Supabase server untyped di 4 route jadi satu helper; pindah daftar TLD/keyword/spoof heuristik (`runHeuristic` server vs `analyzeHeuristic` client) ke `constants.ts` sebagai single source.

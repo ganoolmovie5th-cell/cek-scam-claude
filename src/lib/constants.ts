@@ -21,14 +21,11 @@ export const STATS = {
   sitesBlocked: 3291,
   usersSaved: 8654,
   totalLossPrevented: "Rp 47,3 Miliar",
-  activeSince: "2024",
-  communityMembers: 21000,
 };
 
 export const RISK_LEVELS = {
   SAFE: {
     label: "Aman",
-    color: "green",
     bg: "bg-green-50",
     border: "border-green-200",
     text: "text-green-700",
@@ -37,7 +34,6 @@ export const RISK_LEVELS = {
   },
   WARNING: {
     label: "Waspada",
-    color: "yellow",
     bg: "bg-yellow-50",
     border: "border-yellow-200",
     text: "text-yellow-700",
@@ -46,7 +42,6 @@ export const RISK_LEVELS = {
   },
   DANGER: {
     label: "Berbahaya",
-    color: "red",
     bg: "bg-red-50",
     border: "border-red-200",
     text: "text-red-700",
