@@ -180,3 +180,7 @@ Hapusan aman (verifikasi `tsc --noEmit`), tidak menyentuh pipeline cek URL / val
 **Keputusan:** form lapor (`lapor/page.tsx` → `setTimeout` simulasi) sengaja TIDAK disambungkan ke `/api/reports` untuk sekarang (opsi A). `/api/reports` route dibiarkan utuh (validasi + insert), menunggu disambungkan saat keputusan produk siap.
 
 **Ditunda (refactor, bukan hapusan):** konsolidasi factory Supabase server untyped di 4 route jadi satu helper; pindah daftar TLD/keyword/spoof heuristik (`runHeuristic` server vs `analyzeHeuristic` client) ke `constants.ts` sebagai single source.
+
+## Ponytail Audit — Juli 2026
+
+- **`src/app/api/check-url/route.ts`:** tambah helper `dedupeReasons` (`[...new Set(arr)]`) — ganti O(n²) `.filter((r,i,a) => a.indexOf(r)===i)` yang dipakai 3 kali.
