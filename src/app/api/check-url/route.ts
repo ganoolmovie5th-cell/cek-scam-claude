@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 export const maxDuration = 30; // Vercel: allow up to 30s for this route
 
+const dedupeReasons = (arr: string[]) => [...new Set(arr)];
+
 // ── VirusTotal helpers ─────────────────────────────────────────────
 const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY ?? "";
 const VT_BASE    = "https://www.virustotal.com/api/v3";
@@ -151,9 +153,7 @@ export async function POST(req: NextRequest) {
       const finalRisk = worstRisk(cachedVtRisk, heuristic.risk);
 
       const cachedReasons: string[] = cached.reasons ?? [];
-      const allReasons = [...cachedReasons, ...heuristic.reasons].filter(
-        (r, i, arr) => arr.indexOf(r) === i // deduplicate
-      );
+      const allReasons = dedupeReasons([...cachedReasons, ...heuristic.reasons]);
 
       return NextResponse.json({
         source: "cache",
