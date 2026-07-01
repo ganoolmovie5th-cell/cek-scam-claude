@@ -148,3 +148,10 @@ Hapus stub & dead code. Verifikasi: `tsc --noEmit` lolos.
 - Hapus array `CATEGORIES` + tombol dekoratif di `edukasi/page.tsx` (tidak ada logika filter)
 - Ganti `setTimeout(1500)` palsu di form lapor → `fetch()` POST nyata ke `/api/reports`
 - Hapus hardcoded fallback `&& key !== "dev-clear-2024"` di `api/clear-cache/route.ts`
+
+### Audit Lanjutan 2 (Juli 2026)
+
+- `tailwind.config.ts`: hapus 3 warna custom tak terpakai (`brand`, `safe`, `warn`)
+- `next.config.ts`: hapus file (boilerplate kosong, Next.js pakai default)
+- `src/app/page.tsx:131`: ganti class `text-gradient` (tidak ada rule CSS-nya) → Tailwind gradient inline
+- `src/app/api/check-url/route.ts`: hapus helper `dedupeReasons` → inline `[...new Set(...)]` langsung di call site
