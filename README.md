@@ -140,3 +140,11 @@ Hapusan aman (verifikasi `tsc --noEmit` lolos), tanpa menyentuh pipeline cek URL
 - Perbaiki type drift: `CheckResult.source` di `cek-url/page.tsx` kini menyertakan `"hybrid"` (server memang bisa mengembalikannya).
 
 Catatan: form lapor (`/api/reports`) sengaja DIBIARKAN tersimulasi untuk sekarang (belum disambungkan ke Supabase) sesuai keputusan. Refactor opsional yang ditunda: konsolidasi factory Supabase server di 4 route + pindah daftar TLD/keyword/spoof heuristik ke `constants.ts`.
+
+### Audit Lanjutan (Juli 2026)
+
+Hapus stub & dead code. Verifikasi: `tsc --noEmit` lolos.
+- Hapus `src/app/edukasi/layout.tsx` — metadata dipindah ke `page.tsx` (page sudah `"use client"`, layout tidak bisa export metadata)
+- Hapus array `CATEGORIES` + tombol dekoratif di `edukasi/page.tsx` (tidak ada logika filter)
+- Ganti `setTimeout(1500)` palsu di form lapor → `fetch()` POST nyata ke `/api/reports`
+- Hapus hardcoded fallback `&& key !== "dev-clear-2024"` di `api/clear-cache/route.ts`
