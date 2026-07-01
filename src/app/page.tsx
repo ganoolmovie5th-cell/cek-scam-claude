@@ -128,7 +128,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-              Semua yang Kamu Butuhkan untuk <span className="text-gradient">Aman Online</span>
+              Semua yang Kamu Butuhkan untuk <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Aman Online</span>
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
               4 fitur utama yang dirancang khusus untuk melindungi warga Indonesia dari penipuan digital
