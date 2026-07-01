@@ -1,7 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { EDUCATION_ARTICLES } from "@/lib/constants";
+import { SITE } from "@/lib/constants";
 
-const CATEGORIES = ["Semua", "Belanja Online", "Keamanan Digital", "Investasi", "Keamanan Akun", "Pinjaman Online", "Penipuan Sosial"];
+export const metadata: Metadata = {
+  title: "Edukasi Digital Anti Scam",
+  description:
+    "Pelajari modus penipuan terbaru, cara melindungi diri, dan tips aman berinternet dari para ahli keamanan digital Indonesia.",
+  alternates: {
+    canonical: "/edukasi",
+  },
+  openGraph: {
+    title: "Edukasi Digital Anti Scam | cek-scam.id",
+    description:
+      "Pelajari modus penipuan terbaru, cara melindungi diri, dan tips aman berinternet dari para ahli keamanan digital Indonesia.",
+    url: `${SITE.url}/edukasi`,
+  },
+};
 
 export default function EdukasiPage() {
   return (
@@ -18,22 +33,6 @@ export default function EdukasiPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                cat === "Semua"
-                  ? "bg-purple-600 text-white"
-                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
         {/* Featured Article */}
         <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-3xl p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-start">

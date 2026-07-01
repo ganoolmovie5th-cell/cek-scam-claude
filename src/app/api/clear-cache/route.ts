@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const key = searchParams.get("key");
 
   // Simple protection
-  if (key !== process.env.CACHE_CLEAR_KEY && key !== "dev-clear-2024") {
+  if (key !== process.env.CACHE_CLEAR_KEY) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

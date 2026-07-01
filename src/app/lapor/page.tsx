@@ -57,10 +57,13 @@ export default function LaporPage() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-    // Simulate API call (Supabase insert will go here)
-    await new Promise((r) => setTimeout(r, 1500));
+    const res = await fetch("/api/reports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
     setLoading(false);
-    setSubmitted(true);
+    if (res.ok) setSubmitted(true);
   };
 
   if (submitted) {
