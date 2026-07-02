@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from("scam_reports")
-      .insert(payload)
+      .insert(payload as never)
       .select()
       .single();
 
