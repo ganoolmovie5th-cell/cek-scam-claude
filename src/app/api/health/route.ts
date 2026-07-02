@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { encodeBase64Url } from "@/lib/base64";
 
 export async function GET() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -46,8 +47,7 @@ export async function GET() {
   } else {
     try {
       // Ping VT API with a known safe URL (google.com)
-      const testId = Buffer.from("https://www.google.com").toString("base64")
-        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      const testId = encodeBase64Url("https://www.google.com");
 
       const vtRes = await fetch(`https://www.virustotal.com/api/v3/urls/${testId}`, {
         headers: { "x-apikey": vtKey },

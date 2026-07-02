@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { encodeBase64Url } from "@/lib/base64";
 
 export const maxDuration = 30; // Vercel: allow up to 30s for this route
 
 // ── VirusTotal helpers ─────────────────────────────────────────────
 const VT_API_KEY = process.env.VIRUSTOTAL_API_KEY ?? "";
 const VT_BASE    = "https://www.virustotal.com/api/v3";
-
-function encodeBase64Url(str: string): string {
-  return Buffer.from(str)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
 
 async function vtGetUrl(url: string) {
   const res = await fetch(`${VT_BASE}/urls/${encodeBase64Url(url)}`, {
@@ -53,12 +46,11 @@ async function vtPollAnalysis(analysisId: string, maxWaitMs = 20000) {
 }
 
 // ── Supabase ───────────────────────────────────────────────────────
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+// ponytail: module-level singleton — one client per cold start, not per request
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // ── Risk classifiers ───────────────────────────────────────────────
 function classifyVT(stats: {
@@ -69,29 +61,33 @@ function classifyVT(stats: {
   return "SAFE";
 }
 
+// ── Heuristic constants (module scope — not re-created per request) ─
+const BAD_TLDS     = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
+const BAD_KEYWORDS = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "free-money"];
+const WARN_WORDS   = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat"];
+const SPOOFED      = ["tok0pedia", "tokopedla", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi"];
+const RE_MANY_DIGITS  = /\d{5,}/;
+const RE_STRIP_PROTO  = /^https?:\/\//;
+const RE_STRIP_WWW    = /^www\./;
+
 function runHeuristic(raw: string): { risk: "SAFE" | "WARNING" | "DANGER"; reasons: string[] } {
   const clean = raw.toLowerCase()
-    .replace(/^https?:\/\//, "")
-    .replace(/^www\./, "")
+    .replace(RE_STRIP_PROTO, "")
+    .replace(RE_STRIP_WWW, "")
     .split("/")[0];
 
   const danger: string[] = [];
   const warn:   string[] = [];
 
-  const badTLDs     = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
-  const badKeywords = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "free-money"];
-  const warnWords   = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat"];
-  const spoofed     = ["tok0pedia", "tokopedla", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi"];
-
-  if (badTLDs.some((t) => clean.endsWith(t)))
+  if (BAD_TLDS.some((t) => clean.endsWith(t)))
     danger.push(`TLD mencurigakan (.${clean.split(".").pop()}) — sering dipakai scammer`);
-  if (badKeywords.some((k) => clean.includes(k)))
+  if (BAD_KEYWORDS.some((k) => clean.includes(k)))
     danger.push("Kata kunci berbahaya terdeteksi dalam domain");
-  if (spoofed.some((b) => clean.includes(b)))
+  if (SPOOFED.some((b) => clean.includes(b)))
     danger.push("Terindikasi typosquatting — meniru brand terkenal");
-  if (warnWords.some((k) => clean.includes(k)))
+  if (WARN_WORDS.some((k) => clean.includes(k)))
     warn.push("Kata kunci promosi mencurigakan dalam URL");
-  if (/\d{5,}/.test(clean))
+  if (RE_MANY_DIGITS.test(clean))
     warn.push("Banyak angka berurutan dalam domain");
   if ((clean.match(/-/g) ?? []).length >= 4)
     warn.push("Terlalu banyak tanda hubung — pola umum domain scam");
@@ -124,7 +120,6 @@ export async function POST(req: NextRequest) {
     const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
     // ── 1. Supabase cache ──────────────────────────────────────────
-    const supabase = getSupabase();
     let cached = null;
     try {
       const { data } = await supabase

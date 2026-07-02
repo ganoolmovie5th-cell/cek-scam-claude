@@ -6,6 +6,24 @@ import { SCAM_DATABASE, SCAM_CATEGORIES, RISK_LEVELS } from "@/lib/constants";
 
 const ALL_RISKS = ["Semua", "DANGER", "WARNING", "SAFE"];
 
+// ponytail: precomputed once at module load — SCAM_DATABASE is a static import
+const DANGER_COUNT = SCAM_DATABASE.filter((e) => e.risk === "DANGER").length;
+const WARN_COUNT   = SCAM_DATABASE.filter((e) => e.risk === "WARNING").length;
+const SAFE_COUNT   = SCAM_DATABASE.filter((e) => e.risk === "SAFE").length;
+
+// ponytail: static color map — extracted from render so object isn't recreated every render
+const RISK_FILTER_COLORS: Record<string, string> = {
+  Semua:   "bg-gray-100 text-gray-700 hover:bg-gray-200",
+  DANGER:  "bg-red-50 text-red-700 hover:bg-red-100",
+  WARNING: "bg-yellow-50 text-yellow-700 hover:bg-yellow-100",
+  SAFE:    "bg-green-50 text-green-700 hover:bg-green-100",
+};
+const RISK_FILTER_COLORS_ACTIVE: Record<string, string> = {
+  DANGER:  "bg-red-600 text-white",
+  WARNING: "bg-yellow-500 text-white",
+  SAFE:    "bg-green-600 text-white",
+};
+
 export default function DatabasePage() {
   const [search, setSearch] = useState("");
   const [riskFilter, setRiskFilter] = useState("Semua");
@@ -20,9 +38,9 @@ export default function DatabasePage() {
     return matchSearch && matchRisk && matchCat;
   });
 
-  const dangerCount = SCAM_DATABASE.filter((e) => e.risk === "DANGER").length;
-  const warnCount = SCAM_DATABASE.filter((e) => e.risk === "WARNING").length;
-  const safeCount = SCAM_DATABASE.filter((e) => e.risk === "SAFE").length;
+  const dangerCount = DANGER_COUNT;
+  const warnCount   = WARN_COUNT;
+  const safeCount   = SAFE_COUNT;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,15 +94,12 @@ export default function DatabasePage() {
           <div className="flex flex-wrap gap-2">
             <span className="text-xs text-gray-500 self-center mr-1">Risk:</span>
             {ALL_RISKS.map((r) => {
-              const colors: Record<string, string> = {
-                Semua: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                DANGER: riskFilter === "DANGER" ? "bg-red-600 text-white" : "bg-red-50 text-red-700 hover:bg-red-100",
-                WARNING: riskFilter === "WARNING" ? "bg-yellow-500 text-white" : "bg-yellow-50 text-yellow-700 hover:bg-yellow-100",
-                SAFE: riskFilter === "SAFE" ? "bg-green-600 text-white" : "bg-green-50 text-green-700 hover:bg-green-100",
-              };
+              const activeClass = riskFilter === r
+                ? (r === "Semua" ? "bg-gray-900 text-white" : RISK_FILTER_COLORS_ACTIVE[r])
+                : RISK_FILTER_COLORS[r];
               return (
                 <button key={r} onClick={() => setRiskFilter(r)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${riskFilter === r && r === "Semua" ? "bg-gray-900 text-white" : colors[r]}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeClass}`}>
                   {r === "DANGER" ? "🚨 Berbahaya" : r === "WARNING" ? "⚠️ Waspada" : r === "SAFE" ? "✅ Aman" : "Semua"}
                 </button>
               );
