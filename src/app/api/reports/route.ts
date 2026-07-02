@@ -28,9 +28,10 @@ export async function POST(req: NextRequest) {
       votes: 0,
     };
 
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from("scam_reports")
-      .insert(payload as never)
+      .insert(payload)
       .select()
       .single();
 
