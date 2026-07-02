@@ -122,7 +122,8 @@ export async function POST(req: NextRequest) {
     const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
     // ── 1. Supabase cache ──────────────────────────────────────────
-    let cached = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let cached: any = null;
     try {
       const { data } = await getSupabase()
         .from("url_checks")
