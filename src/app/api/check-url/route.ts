@@ -46,11 +46,13 @@ async function vtPollAnalysis(analysisId: string, maxWaitMs = 20000) {
 }
 
 // ── Supabase ───────────────────────────────────────────────────────
-// ponytail: module-level singleton — one client per cold start, not per request
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// ponytail: lazy singleton — defer createClient until first request (env not set at build time)
+let _supabase: ReturnType<typeof createClient> | undefined;
+const getSupabase = () =>
+  (_supabase ??= createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  ));
 
 // ── Risk classifiers ───────────────────────────────────────────────
 function classifyVT(stats: {
@@ -122,7 +124,7 @@ export async function POST(req: NextRequest) {
     // ── 1. Supabase cache ──────────────────────────────────────────
     let cached = null;
     try {
-      const { data } = await supabase
+      const { data } = await getSupabase()
         .from("url_checks")
         .select("*")
         .eq("url", normalised.toLowerCase())
@@ -134,7 +136,7 @@ export async function POST(req: NextRequest) {
 
     if (cached) {
       // fire-and-forget increment
-      supabase
+      getSupabase()
         .from("url_checks")
         .update({ check_count: (cached.check_count ?? 0) + 1 } as never)
         .eq("id", cached.id)
@@ -225,7 +227,7 @@ export async function POST(req: NextRequest) {
       `https://www.virustotal.com/gui/url/${encodeBase64Url(normalised)}`;
 
     // ── 5. Save to Supabase cache ──────────────────────────────────
-    supabase.from("url_checks").insert({
+    getSupabase().from("url_checks").insert({
       url: normalised.toLowerCase(),
       result: risk,
       reasons,
