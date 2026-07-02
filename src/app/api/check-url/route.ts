@@ -139,7 +139,8 @@ export async function POST(req: NextRequest) {
       // fire-and-forget increment
       getSupabase()
         .from("url_checks")
-        .update({ check_count: (cached.check_count ?? 0) + 1 } as never)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ check_count: (cached.check_count ?? 0) + 1 } as any)
         .eq("id", cached.id)
         .then(() => {});
 
