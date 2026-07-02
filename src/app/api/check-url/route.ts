@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { encodeBase64Url } from "@/lib/base64";
+import { getSupabase } from "@/lib/supabase";
 
 export const maxDuration = 30; // Vercel: allow up to 30s for this route
 
@@ -44,15 +44,6 @@ async function vtPollAnalysis(analysisId: string, maxWaitMs = 20000) {
   }
   return null;
 }
-
-// ── Supabase ───────────────────────────────────────────────────────
-// ponytail: lazy singleton — defer createClient until first request (env not set at build time)
-let _supabase: ReturnType<typeof createClient> | undefined;
-const getSupabase = () =>
-  (_supabase ??= createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  ));
 
 // ── Risk classifiers ───────────────────────────────────────────────
 function classifyVT(stats: {

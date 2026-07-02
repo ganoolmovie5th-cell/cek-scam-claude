@@ -179,8 +179,14 @@ Hapusan aman (verifikasi `tsc --noEmit`), tidak menyentuh pipeline cek URL / val
 
 **Keputusan:** form lapor (`lapor/page.tsx` → `setTimeout` simulasi) sengaja TIDAK disambungkan ke `/api/reports` untuk sekarang (opsi A). `/api/reports` route dibiarkan utuh (validasi + insert), menunggu disambungkan saat keputusan produk siap.
 
-**Ditunda (refactor, bukan hapusan):** konsolidasi factory Supabase server untyped di 4 route jadi satu helper; pindah daftar TLD/keyword/spoof heuristik (`runHeuristic` server vs `analyzeHeuristic` client) ke `constants.ts` sebagai single source.
+**Ditunda (refactor, bukan hapusan):** ~~konsolidasi factory Supabase server untyped di 4 route jadi satu helper~~ ✅ selesai (Audit Lanjutan 4); pindah daftar TLD/keyword/spoof heuristik (`runHeuristic` server vs `analyzeHeuristic` client) ke `constants.ts` sebagai single source.
 
 ## Ponytail Audit — Juli 2026
 
 - **`src/app/api/check-url/route.ts`:** tambah helper `dedupeReasons` (`[...new Set(arr)]`) — ganti O(n²) `.filter((r,i,a) => a.indexOf(r)===i)` yang dipakai 3 kali.
+
+## Ponytail Audit — Lanjutan 4 (Juli 2026)
+
+- **`src/lib/supabase.ts`** (baru): singleton `getSupabase()` — lazy init, env tidak tersedia saat build time. Tipe: `ReturnType<typeof createClient>`.
+- **4 route diupdate** — `check-url`, `clear-cache`, `health`, `reports` kini import `getSupabase` dari `@/lib/supabase`; local factory/singleton dihapus dari masing-masing.
+- Catatan: `health/route.ts` mempertahankan guard `if (!supabaseUrl || !serviceKey)` untuk pesan error yang informatif saat env tidak ada.

@@ -161,3 +161,7 @@ Hapus stub & dead code. Verifikasi: `tsc --noEmit` lolos.
 - `src/lib/base64.ts`: ekstrak `encodeBase64Url` ke shared lib (sebelumnya duplikat inline di `check-url/route.ts` dan `health/route.ts`)
 - `check-url/route.ts`: supabase client → singleton module scope; array heuristik (`BAD_TLDS`, `BAD_KEYWORDS`, dll.) + regex → module scope (tidak dibuat ulang per request)
 - `database/page.tsx`: precompute `DANGER_COUNT`/`WARN_COUNT`/`SAFE_COUNT` di module scope (import statis, tidak perlu dihitung per render)
+
+### Audit Lanjutan 4 (Juli 2026)
+
+- `src/lib/supabase.ts`: buat singleton `getSupabase()` — konsolidasi factory Supabase server untyped yang sebelumnya ditunda; 4 route (`check-url`, `clear-cache`, `health`, `reports`) kini import dari satu tempat

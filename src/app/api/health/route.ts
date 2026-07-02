@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { encodeBase64Url } from "@/lib/base64";
+import { getSupabase } from "@/lib/supabase";
 
 export async function GET() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
@@ -23,8 +23,7 @@ export async function GET() {
     results.supabase = { status: "error", message: "Missing Supabase env vars" };
   } else {
     try {
-      const supabase = createClient(supabaseUrl, serviceKey);
-      const { error } = await supabase.from("scam_reports").select("count").limit(1);
+      const { error } = await getSupabase().from("scam_reports").select("count").limit(1);
       if (error) {
         results.supabase = {
           status: "error",

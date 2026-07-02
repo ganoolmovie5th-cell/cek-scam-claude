@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-// Use plain untyped client to avoid Supabase generic inference issues in strict TS build
-function getServerClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+import { getSupabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Description too short" }, { status: 400 });
     }
 
-    const supabase = getServerClient();
+    const supabase = getSupabase();
 
     const payload = {
       scam_type: scamType,
@@ -56,7 +48,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const supabase = getServerClient();
+    const supabase = getSupabase();
 
     const { data, error } = await supabase
       .from("scam_reports")
