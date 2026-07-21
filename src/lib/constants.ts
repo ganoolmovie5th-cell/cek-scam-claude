@@ -3,6 +3,8 @@
 // Update semua data statistik di sini
 // ============================================================
 
+export const BAD_TLDS = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
+
 export const SITE = {
   name: "cek-scam.id",
   tagline: "Lindungi Dirimu dari Penipuan Online",
