@@ -141,6 +141,10 @@ Hapusan aman (verifikasi `tsc --noEmit` lolos), tanpa menyentuh pipeline cek URL
 
 Catatan: form lapor (`/api/reports`) sengaja DIBIARKAN tersimulasi untuk sekarang (belum disambungkan ke Supabase) sesuai keputusan. Refactor opsional yang ditunda: konsolidasi factory Supabase server di 4 route + pindah daftar TLD/keyword/spoof heuristik ke `constants.ts`.
 
+### Code Centralization (Juli 2026)
+
+`BAD_TLDS` centralized from duplicates in `cek-url/page.tsx` and `api/check-url/route.ts` → `lib/constants.ts` (commit: Centralize BAD_TLDS to constants).
+
 ### Audit Lanjutan (Juli 2026)
 
 Hapus stub & dead code. Verifikasi: `tsc --noEmit` lolos.
