@@ -190,3 +190,7 @@ Hapusan aman (verifikasi `tsc --noEmit`), tidak menyentuh pipeline cek URL / val
 - **`src/lib/supabase.ts`** (baru): singleton `getSupabase()` — lazy init, env tidak tersedia saat build time. Tipe: `ReturnType<typeof createClient>`.
 - **4 route diupdate** — `check-url`, `clear-cache`, `health`, `reports` kini import `getSupabase` dari `@/lib/supabase`; local factory/singleton dihapus dari masing-masing.
 - Catatan: `health/route.ts` mempertahankan guard `if (!supabaseUrl || !serviceKey)` untuk pesan error yang informatif saat env tidak ada.
+
+## Code Centralization (Juli 2026)
+
+- **`BAD_TLDS`** centralized from duplicates in `cek-url/page.tsx` and `api/check-url/route.ts` → `lib/constants.ts` (single source of truth). Kedua file sekarang import dari constants. **Commit:** `Centralize BAD_TLDS to constants`
