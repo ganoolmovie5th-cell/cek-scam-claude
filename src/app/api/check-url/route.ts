@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { encodeBase64Url } from "@/lib/base64";
 import { getSupabase } from "@/lib/supabase";
+import { BAD_TLDS } from "@/lib/constants";
 
 export const maxDuration = 30; // Vercel: allow up to 30s for this route
 
@@ -55,7 +56,6 @@ function classifyVT(stats: {
 }
 
 // ── Heuristic constants (module scope — not re-created per request) ─
-const BAD_TLDS     = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf", ".pw", ".cc"];
 const BAD_KEYWORDS = ["phishing", "scam", "fraud", "cepat-kaya", "profit-harian", "investasi-bodong", "pinjol-cepat", "free-money"];
 const WARN_WORDS   = ["gratis", "promo99", "flash-sale", "murah-banget", "bonus", "hadiah", "menang", "duit-cepat"];
 const SPOOFED      = ["tok0pedia", "tokopedla", "shopppe", "sh0pee", "lazadaa", "gojekk", "grab-promo", "bcaa", "mandiri-bank", "bni-online", "bri-update", "ojk-resmi"];

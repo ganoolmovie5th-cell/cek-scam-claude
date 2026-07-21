@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SCAM_DATABASE, RISK_LEVELS } from "@/lib/constants";
+import { SCAM_DATABASE, RISK_LEVELS, BAD_TLDS } from "@/lib/constants";
 import type { ScamEntry } from "@/lib/constants";
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -57,12 +57,11 @@ function analyzeHeuristic(input: string): CheckResult {
 
   const dangerSignals: string[] = [];
   const warnSignals: string[] = [];
-  const suspiciousTLDs = [".xyz", ".info", ".top", ".click", ".tk", ".ml", ".ga", ".cf"];
   const suspiciousKeywords = ["gratis", "promo99", "flash-sale", "murah-banget", "cepat-kaya", "profit", "bonus", "hadiah", "menang"];
   const brandSpoof = ["tokoepdia", "shopppe", "lazadaa", "gojekk", "bcaa", "mandiri-bank", "bni-online"];
 
-  if (suspiciousTLDs.some((t) => clean.endsWith(t)))
-    dangerSignals.push(`TLD mencurigakan (${suspiciousTLDs.find((t) => clean.endsWith(t))})`);
+  if (BAD_TLDS.some((t) => clean.endsWith(t)))
+    dangerSignals.push(`TLD mencurigakan (${BAD_TLDS.find((t) => clean.endsWith(t))})`);
   if (suspiciousKeywords.some((k) => clean.includes(k)))
     warnSignals.push("Kata kunci promosi mencurigakan dalam URL");
   if (brandSpoof.some((b) => clean.includes(b)))
