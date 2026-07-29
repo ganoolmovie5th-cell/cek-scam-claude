@@ -10,7 +10,9 @@ export const SITE = {
   tagline: "Lindungi Dirimu dari Penipuan Online",
   description:
     "Platform komunitas Indonesia untuk deteksi penipuan online, cek keamanan website, dan edukasi digital. Bersama kita lebih aman.",
-  url: "https://cek-scam.web.id",
+  // www, not apex: the apex 308-redirects here, so apex canonicals and sitemap
+  // entries never match the URL Google actually indexes.
+  url: "https://www.cek-scam.web.id",
   email: "lapor@cek-scam.id",
   social: {
     twitter: "https://twitter.com/cekscamid",
