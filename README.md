@@ -169,3 +169,14 @@ Hapus stub & dead code. Verifikasi: `tsc --noEmit` lolos.
 ### Audit Lanjutan 4 (Juli 2026)
 
 - `src/lib/supabase.ts`: buat singleton `getSupabase()` — konsolidasi factory Supabase server untyped yang sebelumnya ditunda; 4 route (`check-url`, `clear-cache`, `health`, `reports`) kini import dari satu tempat
+
+### Security: bump next 15.5.21 + pin postcss ^8.5.18 (Juli 2026)
+
+Dependabot melaporkan 34 alert terbuka — 29 di `next`, 3 di `postcss`, 2 di `brace-expansion`. Tidak ada alert `sharp`; blok `overrides` sebelumnya sudah menutupnya.
+
+- `next` `15.3.6` → `15.5.21`. Ke-29 advisory (12 high, 15 medium, 2 low) semuanya punya range yang berakhir di `< 15.5.21` atau lebih rendah, jadi satu bump minor dalam major yang sama menutup semuanya. `eslint-config-next` ikut disamakan.
+- `postcss` naik dari `^8` ke `^8.5.18`. **Devdependency langsung saja tidak cukup**: setelah bump pertama, `node_modules/next/node_modules/postcss` masih `8.4.31` karena `next` membawa salinannya sendiri. Baru setelah `postcss` dimasukkan ke blok `overrides` kedua salinan naik dan ter-dedupe jadi satu (`8.5.25`).
+
+**Sisa yang sengaja tidak dikejar:** `brace-expansion` (high, DoS) lewat rantai `eslint@8` → `minimatch`. Devdependency, tidak masuk bundle produksi, dan perbaikannya menuntut `eslint@10` yang breaking.
+
+Verifikasi: `npm run build` EXIT=0, 0 error.

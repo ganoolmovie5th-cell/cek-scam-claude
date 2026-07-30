@@ -194,3 +194,7 @@ Hapusan aman (verifikasi `tsc --noEmit`), tidak menyentuh pipeline cek URL / val
 ## Code Centralization (Juli 2026)
 
 - **`BAD_TLDS`** centralized from duplicates in `cek-url/page.tsx` and `api/check-url/route.ts` → `lib/constants.ts` (single source of truth). Kedua file sekarang import dari constants. **Commit:** `Centralize BAD_TLDS to constants`
+
+## Dependency Pin
+
+Blok `overrides` di `package.json` memuat `sharp` `^0.35.3` dan `postcss` `^8.5.18`. **Jangan hapus** — alert Dependabot akan balik lagi. Catatan penting: `postcss` **harus** ada di `overrides`, bukan cuma di `devDependencies`, karena `next` membawa salinan `postcss` sendiri di `node_modules/next/node_modules/` yang tidak ikut naik lewat devDependency. `next` dipin ke versi eksplisit — kalau dinaikkan, naikkan `eslint-config-next` ke versi yang sama.
