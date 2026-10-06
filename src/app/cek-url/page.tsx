@@ -174,7 +174,7 @@ export default function CekUrlPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white py-14">
+      <div className="bg-linear-to-br from-blue-600 to-cyan-500 text-white py-14">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="text-5xl mb-4">🔍</div>
           <h1 className="text-3xl md:text-4xl font-black mb-3">Cek Keamanan URL / Website</h1>
@@ -191,7 +191,7 @@ export default function CekUrlPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-10">
         {/* Input Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-xs border border-gray-100 p-6 mb-6">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Masukkan URL atau Domain
           </label>
@@ -202,7 +202,7 @@ export default function CekUrlPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !loading && handleCheck()}
               placeholder="Contoh: toko-murah.com atau https://bca-update.info"
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button
               onClick={handleCheck}

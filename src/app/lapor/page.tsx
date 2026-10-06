@@ -69,7 +69,7 @@ export default function LaporPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-sm border border-gray-100 p-10 text-center">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-xs border border-gray-100 p-10 text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-black text-gray-900 mb-3">Laporan Diterima!</h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-6">
@@ -96,7 +96,7 @@ export default function LaporPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-red-600 to-orange-500 text-white py-14">
+      <div className="bg-linear-to-br from-red-600 to-orange-500 text-white py-14">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="text-5xl mb-4">🚨</div>
           <h1 className="text-3xl md:text-4xl font-black mb-3">Lapor Penipuan Online</h1>
@@ -158,7 +158,7 @@ export default function LaporPage() {
                 value={form.targetName}
                 onChange={(e) => setForm({ ...form, targetName: e.target.value })}
                 placeholder="Contoh: toko-murah.com atau 0812xxxx"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
               />
               {errors.targetName && <p className="text-red-500 text-xs mt-1">{errors.targetName}</p>}
             </div>
@@ -168,7 +168,7 @@ export default function LaporPage() {
               <select
                 value={form.platform}
                 onChange={(e) => setForm({ ...form, platform: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 bg-white"
               >
                 <option value="">Pilih platform...</option>
                 {PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -185,7 +185,7 @@ export default function LaporPage() {
                 value={form.lossAmount}
                 onChange={(e) => setForm({ ...form, lossAmount: e.target.value })}
                 placeholder="Contoh: 500000"
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function LaporPage() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={5}
               placeholder="Ceritakan kronologi penipuan yang kamu alami atau ketahui. Sertakan detail seperti modus operandi, cara kontak, dan bukti yang ada..."
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 resize-none"
             />
             <div className="flex justify-between mt-1">
               {errors.description
@@ -224,7 +224,7 @@ export default function LaporPage() {
                 type="checkbox"
                 checked={form.anonymous}
                 onChange={(e) => setForm({ ...form, anonymous: e.target.checked })}
-                className="w-4 h-4 rounded accent-red-600"
+                className="w-4 h-4 rounded-sm accent-red-600"
               />
               <span className="text-sm text-gray-700">Laporkan secara anonim (nama tidak ditampilkan)</span>
             </label>
@@ -239,7 +239,7 @@ export default function LaporPage() {
                   value={form.reporterContact}
                   onChange={(e) => setForm({ ...form, reporterContact: e.target.value })}
                   placeholder="email@kamu.com atau 0812xxxx"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500"
                 />
               </div>
             )}

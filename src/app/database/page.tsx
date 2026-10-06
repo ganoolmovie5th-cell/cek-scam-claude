@@ -45,7 +45,7 @@ export default function DatabasePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-gray-900 to-red-950 text-white py-14">
+      <div className="bg-linear-to-br from-gray-900 to-red-950 text-white py-14">
         <div className="max-w-5xl mx-auto px-4 text-center">
           <div className="text-5xl mb-4">🗃️</div>
           <h1 className="text-3xl md:text-4xl font-black mb-3">Database Scammer Indonesia</h1>
@@ -55,19 +55,19 @@ export default function DatabasePage() {
 
           {/* Stats Row */}
           <div className="flex justify-center gap-6 mt-8">
-            <div className="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 text-center">
               <div className="text-2xl font-black text-red-400">{dangerCount}</div>
               <div className="text-xs text-gray-300">Berbahaya</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 text-center">
               <div className="text-2xl font-black text-yellow-400">{warnCount}</div>
               <div className="text-xs text-gray-300">Waspada</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 text-center">
               <div className="text-2xl font-black text-green-400">{safeCount}</div>
               <div className="text-xs text-gray-300">Aman Terverifikasi</div>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 text-center">
               <div className="text-2xl font-black text-white">{SCAM_DATABASE.length}</div>
               <div className="text-xs text-gray-300">Total Entri</div>
             </div>
@@ -86,7 +86,7 @@ export default function DatabasePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama website, toko, atau deskripsi..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-gray-400"
             />
           </div>
 

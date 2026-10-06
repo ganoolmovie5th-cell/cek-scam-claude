@@ -22,7 +22,7 @@ export default function EdukasiPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-purple-600 to-pink-500 text-white py-14">
+      <div className="bg-linear-to-br from-purple-600 to-pink-500 text-white py-14">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="text-5xl mb-4">📚</div>
           <h1 className="text-3xl md:text-4xl font-black mb-3">Edukasi Digital</h1>
@@ -34,7 +34,7 @@ export default function EdukasiPage() {
 
       <div className="max-w-6xl mx-auto px-4 py-10">
         {/* Featured Article */}
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-3xl p-8 mb-8">
+        <div className="bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-3xl p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <div className="text-6xl">{EDUCATION_ARTICLES[0].icon}</div>
             <div className="flex-1">
@@ -69,7 +69,7 @@ export default function EdukasiPage() {
               href={`/edukasi/${article.slug}`}
               className="group bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-all hover:-translate-y-1"
             >
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 flex items-center justify-center text-5xl h-32">
+              <div className="bg-linear-to-br from-gray-50 to-gray-100 p-6 flex items-center justify-center text-5xl h-32">
                 {article.icon}
               </div>
               <div className="p-5">

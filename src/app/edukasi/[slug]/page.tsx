@@ -80,7 +80,7 @@ export default async function ArticlePage({ params }: Props) {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
               {/* Article Header */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-8 text-center border-b border-gray-100">
+              <div className="bg-linear-to-br from-purple-50 to-pink-50 p-8 text-center border-b border-gray-100">
                 <div className="text-6xl mb-4">{article.icon}</div>
                 <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">
                   {article.category}

@@ -1,8 +1,48 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap')
+layer(utilities);
+
+@theme {
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+
+  --font-sans: Inter, system-ui, sans-serif;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility text-gradient {
+  @apply bg-linear-to-r from-red-600 to-orange-500 bg-clip-text text-transparent;
+}
+
+@utility text-gradient-safe {
+  @apply bg-linear-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent;
+}
+
+@utility card-hover {
+  @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
+}
+
+@utility animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
 @layer base {
   * {
@@ -14,20 +54,5 @@
   body {
     font-family: 'Inter', system-ui, sans-serif;
     @apply bg-gray-50 text-gray-900 antialiased;
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent;
-  }
-  .text-gradient-safe {
-    @apply bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent;
-  }
-  .card-hover {
-    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
-  }
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }

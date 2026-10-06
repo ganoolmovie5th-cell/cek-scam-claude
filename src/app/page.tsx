@@ -42,7 +42,7 @@ export default function HomePage() {
       />
 
       {/* ── HERO ── */}
-      <section className="relative bg-gradient-to-br from-gray-900 via-red-950 to-gray-900 text-white overflow-hidden">
+      <section className="relative bg-linear-to-br from-gray-900 via-red-950 to-gray-900 text-white overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-72 h-72 bg-red-500 rounded-full blur-3xl" />
@@ -59,7 +59,7 @@ export default function HomePage() {
 
             <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">
               Lindungi Dirimu dari{" "}
-              <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
                 Penipuan Online
               </span>
             </h1>
@@ -68,13 +68,13 @@ export default function HomePage() {
             </p>
 
             {/* Quick URL Check */}
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 mb-8 max-w-xl">
+            <div className="bg-white/10 backdrop-blur-xs border border-white/20 rounded-2xl p-4 mb-8 max-w-xl">
               <p className="text-sm text-gray-300 mb-3 font-medium">🔍 Cek website sekarang:</p>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Contoh: toko-murah-banget.com"
-                  className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-none focus:border-red-400"
+                  className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 text-sm focus:outline-hidden focus:border-red-400"
                   readOnly
                 />
                 <Link
@@ -128,7 +128,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-              Semua yang Kamu Butuhkan untuk <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Aman Online</span>
+              Semua yang Kamu Butuhkan untuk <span className="bg-linear-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Aman Online</span>
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
               4 fitur utama yang dirancang khusus untuk melindungi warga Indonesia dari penipuan digital
@@ -179,7 +179,7 @@ export default function HomePage() {
                 href={f.href}
                 className={`group card-hover ${f.bg} border ${f.border} rounded-2xl p-6 block`}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-110 transition-transform`}>
+                <div className={`w-12 h-12 rounded-xl bg-linear-to-br ${f.color} flex items-center justify-center text-2xl mb-4 shadow-md group-hover:scale-110 transition-transform`}>
                   {f.icon}
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
@@ -327,7 +327,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA BANNER ── */}
-      <section className="py-16 bg-gradient-to-r from-red-600 to-orange-500 text-white">
+      <section className="py-16 bg-linear-to-r from-red-600 to-orange-500 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-5xl mb-4">🛡️</div>
           <h2 className="text-3xl md:text-4xl font-black mb-4">
